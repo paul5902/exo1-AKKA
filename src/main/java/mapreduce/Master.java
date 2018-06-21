@@ -6,14 +6,15 @@ import java.util.List;
 import akka.actor.AbstractActor;
 import akka.actor.AbstractActor.Receive;
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.io.Tcp.Message;
 
 public class Master extends AbstractActor {
 	
-	List<ActorRef> mappers;
+	List<ActorSelection> mappers;
 	int position;
 	
-	public Master(ArrayList<ActorRef> mappers) {
+	public Master(ArrayList<ActorSelection> mappers) {
 		this.mappers = mappers;
 		position = 0;
 	}
@@ -30,9 +31,10 @@ public class Master extends AbstractActor {
 		String[] sentences = msg.toString().split(System.getProperty("line.separator"));
 		
 		for(String sentence : sentences) {
-			ActorRef destinationMapper = mappers.get(position);
-			System.out.println("Envoi de la phrase : "+sentence + " au mapper numero "+position);
+			ActorSelection destinationMapper = mappers.get(position);
+			
 			destinationMapper.tell(sentence, this.getSelf());
+			System.out.println("Envoi de la phrase : "+sentence + " au mapper numero "+position);
 			position++;
 			if(position>2) { position = 0; }
 		}
